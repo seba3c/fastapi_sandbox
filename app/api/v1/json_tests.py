@@ -8,7 +8,7 @@ from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 """
-Scenario 1
+Scenario
 Your FastAPI service builds JSON responses by concatenating strings in a loop. Under payloads with more than fifty thousand records, 
 CPU usage soars and response latency jumps from twenty milliseconds to over half a second. 
 How would you optimize the serialization to handle this edge case?
