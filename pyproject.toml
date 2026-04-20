@@ -5,6 +5,7 @@ description = "FastAPI sandbox for experimentation"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115",
+    "orjson>=3.11.8",
     "pydantic-settings>=2.0",
 ]
 
