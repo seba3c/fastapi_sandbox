@@ -8,6 +8,7 @@ from app.api.v1 import json_tests
 
 API_V1 = "/api/v1"
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
