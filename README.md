@@ -2,6 +2,8 @@
 
 A minimal FastAPI project for experimentation, using [uv](https://docs.astral.sh/uv/) for dependency management.
 
+This project uses [autoskills.sh](https://www.autoskills.sh/) and [skills.sh](https://skills.sh/) to manage agent skills.
+
 ## Requirements
 
 - Python 3.12+
