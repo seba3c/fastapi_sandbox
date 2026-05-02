@@ -9,8 +9,8 @@ from pydantic import BaseModel
 
 """
 Scenario
-Your FastAPI service builds JSON responses by concatenating strings in a loop. Under payloads with more than fifty thousand records, 
-CPU usage soars and response latency jumps from twenty milliseconds to over half a second. 
+Your FastAPI service builds JSON responses by concatenating strings in a loop. Under payloads with more than fifty thousand records,
+CPU usage soars and response latency jumps from twenty milliseconds to over half a second.
 How would you optimize the serialization to handle this edge case?
 
 * use a list with join operation instead of concat
@@ -78,7 +78,7 @@ async def concat_items():
 
 
 @router.get("/items/list-and-orjson")
-async def concat_items():
+async def list_and_orjson_items():
     response = []
     for item in items:
         str_item = f'{{ "name": "{item.name}", "description": "{item.description}" }}'
