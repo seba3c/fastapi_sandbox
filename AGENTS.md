@@ -12,16 +12,19 @@ uv add --dev <package>                       # add dev dependency
 
 ## Architecture
 
-- **`app/main.py`** — FastAPI app factory; registers all `app.include_router(...)` calls here
-- **`app/config.py`** — `pydantic-settings` `Settings` class; reads `.env` automatically via `SettingsConfigDict(env_file=".env")`
-- **`app/deps.py`** — shared FastAPI dependencies; `get_settings()` is cached with `lru_cache`
-- **`app/api/v1/`** — versioned routers; register each in `app/main.py`
-- **`app/models/`** — Pydantic request/response schemas
+- **`app/main.py`** — FastAPI app factory; registers the `api/v1` router
+- **`app/core/config.py`** — `pydantic-settings` `Settings` class; reads `.env` automatically via `SettingsConfigDict(env_file=".env")`
+- **`app/api/dependencies.py`** — shared FastAPI dependencies; `get_settings()` is cached with `lru_cache`
+- **`app/api/v1/router.py`** — aggregates all v1 endpoint routers
+- **`app/api/v1/endpoints/`** — individual endpoint modules (health, json_tests, etc.)
+- **`app/models/`** — database models (Pydantic schemas go in `app/schemas/`)
+- **`app/services/`** — business logic layer
+- **`app/repositories/`** — data access layer
 
 ## Adding a New Endpoint
 
-1. Create `app/api/v1/<feature>.py` with an `APIRouter`
-2. Import and register in `app/main.py`: `app.include_router(feature.router, prefix="/api/v1")`
+1. Create `app/api/v1/endpoints/<feature>.py` with an `APIRouter`
+2. Import and register in `app/api/v1/router.py`: `api_router.include_router(feature.router, prefix="/<feature>", tags=["<feature>"])`
 3. Add tests in `tests/test_<feature>.py` using the `AsyncClient` + `ASGITransport` pattern from `tests/test_health.py`
 
 ## Testing
