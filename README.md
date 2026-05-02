@@ -1,6 +1,11 @@
 # FastAPI Sandbox
 
-A minimal FastAPI project for experimentation, using [uv](https://docs.astral.sh/uv/) for dependency management.
+A minimal FastAPI project for experimentation and learning, using [uv](https://docs.astral.sh/uv/) for dependency management.
+
+This project serves two purposes:
+
+1. **Learn and experiment with FastAPI** — exploring patterns, best practices, and building small features.
+2. **Learn and use OpenCode as the main AI coding tool** — all development assistance, code generation, and agent-driven workflows are done through [OpenCode](https://opencode.ai/), making it the primary AI pair-programmer for this codebase.
 
 This project uses [autoskills.sh](https://www.autoskills.sh/) and [skills.sh](https://skills.sh/) to manage agent skills.
 
