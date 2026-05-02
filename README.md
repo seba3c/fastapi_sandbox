@@ -20,6 +20,22 @@ This project uses [autoskills.sh](https://www.autoskills.sh/) and [skills.sh](ht
 uv sync
 ```
 
+## Quick Commands
+
+| Command | Description |
+|---------|-------------|
+| `make run-uvicorn` | Run API with uvicorn auto-reload |
+| `make run-fastapi` | Run via FastAPI CLI dev server |
+| `make test` | Run tests |
+| `make code-check` | Check linting and formatting (read-only) |
+| `make code-fix` | Fix linting issues |
+| `make code-format` | Format code |
+| `make dep-sync` | Sync dependencies |
+| `make pre-commit-install` | Install git hooks |
+| `make pre-commit-run` | Run hooks manually |
+| `make docker-run` | Start API via Docker Compose |
+| `make docker-test` | Run tests in Docker |
+
 ## Run
 
 ```bash
@@ -78,13 +94,20 @@ uv run pre-commit run --all-files    # Run manually across all files
 
 ```
 app/
-├── main.py          # FastAPI app instance and router registration
-├── config.py        # Settings loaded from environment / .env
-├── deps.py          # Shared FastAPI dependencies
+├── main.py                    # FastAPI app factory; registers the v1 router
+├── core/
+│   └── config.py              # pydantic-settings Settings (reads .env via env_file)
 ├── api/
+│   ├── dependencies.py        # Shared FastAPI dependencies (e.g., get_settings)
 │   └── v1/
-│       └── health.py  # GET /api/v1/health
-└── models/          # Pydantic schemas
+│       ├── router.py          # Aggregates all v1 endpoint routers
+│       └── endpoints/
+│           ├── __init__.py
+│           ├── health.py      # GET /api/v1/health
+│           └── json_tests.py # Various JSON serialization tests
+├── schemas/                   # Pydantic input/output models
+├── services/                  # Business logic layer
+└── repositories/              # Data access layer
 tests/
 └── test_health.py
 ```
