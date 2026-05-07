@@ -1,6 +1,8 @@
 # FastAPI Sandbox
 
-A minimal FastAPI project for experimentation and learning, using [uv](https://docs.astral.sh/uv/) for dependency management.
+A FastAPI project for experimentation and learning, using [uv](https://docs.astral.sh/uv/) for dependency management.
+
+This is the FastAPI version of [sb-ecom](https://github.com/seba3c/sb-ecom) project.
 
 This project serves two purposes:
 
