@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.anyio
 async def test_process_time_header(client):
-    response = await client.get("/api/v1/health")
+    response = await client.get("/api/health")
     assert response.status_code == 200
     assert "X-Process-Time" in response.headers
 

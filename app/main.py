@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down %s app...", app.title)
 
 
-app = FastAPI(title="FastAPI Sandbox", lifespan=lifespan)
+app = FastAPI(title="FastAPI ecom", lifespan=lifespan)
 app.middleware("http")(add_process_time_header)
 app.middleware("http")(log_requests)
 app.include_router(api_router)
