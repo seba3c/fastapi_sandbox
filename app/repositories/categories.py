@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +27,12 @@ class CategoryRepository:
         await self._session.commit()
         await self._session.refresh(category)
         return category
+
+    async def bulk_create(self, creates: list[CategoryCreate]) -> list[Category]:
+        categories = [Category(name=c.name) for c in creates]
+        self._session.add_all(categories)
+        await self._session.commit()
+        return categories
 
     async def update(
         self, category_id: int, category_update: CategoryUpdate

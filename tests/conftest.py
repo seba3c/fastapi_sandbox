@@ -1,20 +1,19 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.api.dependencies import get_db_session
 from app.core.config import Settings
 from app.db.base import Base
+from app.db.session import create_async_engine_instance, create_async_session_maker
 from app.main import app
 from app.repositories.categories import CategoryRepository
 from app.schemas.category import CategoryCreate
 
-settings = Settings()
-
 
 @pytest.fixture(scope="module")
 async def db_engine():
-    engine = create_async_engine(settings.database_url)
+    settings = Settings()
+    engine = create_async_engine_instance(settings)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
@@ -25,11 +24,11 @@ async def db_engine():
 
 @pytest.fixture
 async def db_session(db_engine):
+    session_maker = create_async_session_maker(db_engine)
     async with db_engine.connect() as connection:
         await connection.begin()
         await connection.begin_nested()
-        session_maker = async_sessionmaker(bind=connection, expire_on_commit=False)
-        session = session_maker()
+        session = session_maker(bind=connection)
         yield session
         await session.close()
         await connection.rollback()

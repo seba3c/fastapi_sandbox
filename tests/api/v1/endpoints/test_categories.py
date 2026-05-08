@@ -14,6 +14,14 @@ async def test_create_category(client):
 
 
 @pytest.mark.anyio
+async def test_create_category_duplicate(client, category_factory):
+    await category_factory("Duplicate")
+    response = await client.post(CATEGORIES_ADMIN_URL, json={"name": "Duplicate"})
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Category with this name already exists."
+
+
+@pytest.mark.anyio
 async def test_create_category_validation_error(client):
     # Name too long
     response = await client.post(CATEGORIES_ADMIN_URL, json={"name": "a" * 51})

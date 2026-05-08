@@ -1,4 +1,4 @@
-.PHONY: db-up db-down db-reset run-uvicorn run-fastapi test migrate migrate-rollback code-check code-fix code-format dep-sync pre-commit-install pre-commit-run docker-run docker-test
+.PHONY: db-up db-down db-reset run-uvicorn run-fastapi test migrate migrate-rollback code-check code-fix code-format dep-sync pre-commit-install pre-commit-run docker-run docker-test seed
 
 # Start the dev DB container and wait until healthy
 db-up:
@@ -57,6 +57,10 @@ pre-commit-install:
 # Run all pre-commit hooks on all files (lint, format, yaml, whitespace, etc.)
 pre-commit-run:
 	uv run pre-commit run --all-files
+
+# Seed default categories into the dev DB
+seed: db-up migrate
+	PYTHONPATH=. uv run python app/db/seeds/categories.py
 
 # Build and start the API container via Docker Compose
 docker-run:
