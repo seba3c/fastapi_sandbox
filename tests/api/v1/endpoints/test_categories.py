@@ -25,9 +25,9 @@ async def test_create_category_validation_error(client):
 
 
 @pytest.mark.anyio
-async def test_list_categories(client):
-    await client.post(CATEGORIES_ADMIN_URL, json={"name": "Category 1"})
-    await client.post(CATEGORIES_ADMIN_URL, json={"name": "Category 2"})
+async def test_list_categories(client, category_factory):
+    await category_factory("Category 1")
+    await category_factory("Category 2")
 
     response = await client.get(CATEGORIES_PUBLIC_URL)
     assert response.status_code == 200
@@ -36,13 +36,10 @@ async def test_list_categories(client):
 
 
 @pytest.mark.anyio
-async def test_get_category(client):
-    create_response = await client.post(
-        CATEGORIES_ADMIN_URL, json={"name": "Category 1"}
-    )
-    category_id = create_response.json()["id"]
+async def test_get_category(client, category_factory):
+    category = await category_factory("Category 1")
 
-    response = await client.get(f"{CATEGORIES_ADMIN_URL}/{category_id}")
+    response = await client.get(f"{CATEGORIES_ADMIN_URL}/{category.id}")
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Category 1"
@@ -55,12 +52,11 @@ async def test_get_category_not_found(client):
 
 
 @pytest.mark.anyio
-async def test_update_category(client):
-    create_response = await client.post(CATEGORIES_ADMIN_URL, json={"name": "Original"})
-    category_id = create_response.json()["id"]
+async def test_update_category(client, category_factory):
+    category = await category_factory("Original")
 
     response = await client.put(
-        f"{CATEGORIES_ADMIN_URL}/{category_id}", json={"name": "Updated"}
+        f"{CATEGORIES_ADMIN_URL}/{category.id}", json={"name": "Updated"}
     )
     assert response.status_code == 200
     data = response.json()
@@ -76,16 +72,13 @@ async def test_update_category_not_found(client):
 
 
 @pytest.mark.anyio
-async def test_delete_category(client):
-    create_response = await client.post(
-        CATEGORIES_ADMIN_URL, json={"name": "To Delete"}
-    )
-    category_id = create_response.json()["id"]
+async def test_delete_category(client, category_factory):
+    category = await category_factory("To Delete")
 
-    response = await client.delete(f"{CATEGORIES_ADMIN_URL}/{category_id}")
+    response = await client.delete(f"{CATEGORIES_ADMIN_URL}/{category.id}")
     assert response.status_code == 204
 
-    get_response = await client.get(f"{CATEGORIES_ADMIN_URL}/{category_id}")
+    get_response = await client.get(f"{CATEGORIES_ADMIN_URL}/{category.id}")
     assert get_response.status_code == 404
 
 

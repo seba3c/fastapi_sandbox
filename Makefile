@@ -1,16 +1,37 @@
-.PHONY: run-uvicorn run-fastapi test code-check code-fix code-format dep-sync pre-commit-install pre-commit-run docker-run docker-test
+.PHONY: db-up db-down db-reset run-uvicorn run-fastapi test migrate migrate-rollback code-check code-fix code-format dep-sync pre-commit-install pre-commit-run docker-run docker-test
+
+# Start the dev DB container and wait until healthy
+db-up:
+	docker compose up -d db --wait
+
+# Stop dev DB container but keep volumes
+db-down:
+	docker compose down db
+
+# Stop dev DB container and delete volumes (fresh start)
+db-reset:
+	docker compose down db -v
 
 # Run the FastAPI app with auto-reload (uvicorn --reload)
-run-uvicorn:
+run-uvicorn: db-up
 	uv run uvicorn app.main:app --reload
 
 # Run via FastAPI CLI dev server (supports auto-reload and type checking)
-run-fastapi:
+run-fastapi: db-up
 	uv run fastapi dev
 
-# Run all tests with verbose output
-test:
-	uv run pytest -v
+# Run all tests with verbose output against the test DB (overrides db with test config)
+test: db-down
+	docker compose -f docker-compose.yml -f docker-compose.test.yml up -d db --wait
+	DATABASE_URL=mysql+aiomysql://fa_ecom_user:fa_ecom_pass@localhost:3307/fa_ecom_test uv run pytest -v
+
+# Run Alembic migrations against the dev DB
+migrate: db-up
+	uv run alembic upgrade head
+
+# Rollback the last migration
+migrate-rollback: db-up
+	uv run alembic downgrade -1
 
 # Check for linting issues and verify code formatting (read-only)
 code-check:
@@ -41,6 +62,6 @@ pre-commit-run:
 docker-run:
 	docker compose up api --build
 
-# Run tests inside a Docker container
+# Run tests inside a Docker container (uses test DB override)
 docker-test:
-	docker compose run test
+	docker compose -f docker-compose.yml -f docker-compose.test.yml run test

@@ -10,6 +10,17 @@ uv add <package>                             # add runtime dependency
 uv add --dev <package>                       # add dev dependency
 ```
 
+## Database
+
+- **`make db-up`** — starts the dev DB (`db`, port `3306`) and waits until it is healthy.
+- **`make db-down`** — stops the dev DB container but preserves its volume.
+- **`make db-reset`** — stops the dev DB container **and** deletes its volume for a completely fresh start.
+- **`make run-uvicorn` / `make run-fastapi`** — automatically start the dev DB before launching the app.
+- **`make test`** — overrides the `db` service with `docker-compose.test.yml` (test DB config), starts it, then runs pytest against `localhost:3307/fa_ecom_test`.
+- **`make migrate`** — runs `alembic upgrade head` against the dev DB.
+- **`make migrate-rollback`** — runs `alembic downgrade -1` against the dev DB.
+- The Docker `test` service connects to `db:3306/fa_ecom_test` internally.
+
 ## Architecture
 
 - **`app/main.py`** — FastAPI app factory; registers the `api/v1` router
