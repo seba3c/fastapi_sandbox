@@ -1,12 +1,8 @@
-.PHONY: db-up db-test-up db-down db-reset run-uvicorn run-fastapi test migrate migrate-rollback code-check code-fix code-format dep-sync pre-commit-install pre-commit-run docker-run docker-test
+.PHONY: db-up db-down db-reset run-uvicorn run-fastapi test migrate migrate-rollback code-check code-fix code-format dep-sync pre-commit-install pre-commit-run docker-run docker-test
 
 # Start the dev DB container and wait until healthy
 db-up:
 	docker compose up -d db --wait
-
-# Start the test DB container and wait until healthy
-db-test-up:
-	docker compose up -d db-test --wait
 
 # Stop dev DB container but keep volumes
 db-down:
@@ -24,8 +20,9 @@ run-uvicorn: db-up
 run-fastapi: db-up
 	uv run fastapi dev
 
-# Run all tests with verbose output against the isolated test DB
-test: db-test-up
+# Run all tests with verbose output against the test DB (overrides db with test config)
+test: db-down
+	docker compose -f docker-compose.yml -f docker-compose.test.yml up -d db --wait
 	DATABASE_URL=mysql+aiomysql://fa_ecom_user:fa_ecom_pass@localhost:3307/fa_ecom_test uv run pytest -v
 
 # Run Alembic migrations against the dev DB
@@ -65,6 +62,6 @@ pre-commit-run:
 docker-run:
 	docker compose up api --build
 
-# Run tests inside a Docker container
+# Run tests inside a Docker container (uses test DB override)
 docker-test:
-	docker compose run test
+	docker compose -f docker-compose.yml -f docker-compose.test.yml run test

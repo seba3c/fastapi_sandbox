@@ -16,23 +16,6 @@ services:
       timeout: 5s
       retries: 10
 
-  db-test:
-    image: mysql:8
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: fa_ecom_test
-      MYSQL_USER: fa_ecom_user
-      MYSQL_PASSWORD: fa_ecom_pass
-    ports:
-      - "3307:3306"
-    volumes:
-      - db_test_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   api:
     build:
       context: .
@@ -55,11 +38,10 @@ services:
       dockerfile: Dockerfile
       target: test
     environment:
-      - DATABASE_URL=mysql+aiomysql://fa_ecom_user:fa_ecom_pass@db-test:3306/fa_ecom_test
+      - DATABASE_URL=mysql+aiomysql://fa_ecom_user:fa_ecom_pass@db:3307/fa_ecom_test
     depends_on:
-      db-test:
+      db:
         condition: service_healthy
 
 volumes:
   db_data:
-  db_test_data:
