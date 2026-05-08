@@ -8,4 +8,4 @@ class BaseModel(PydanticBaseModel):
     custom JSON encoders, or shared validators).
     """
 
-    model_config = {"populate_by_name": True}
+    model_config = {"populate_by_name": True, "from_attributes": True}

@@ -1,9 +1,15 @@
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 
 import pytest
 
 from app.schemas.category import Category, CategoryCreate, CategoryUpdate
 from app.services.category_service import CategoryService
+
+
+def _category(id: int, name: str) -> Category:
+    now = datetime.now(timezone.utc)
+    return Category(id=id, name=name, created_at=now, updated_at=now)
 
 
 @pytest.fixture
@@ -14,7 +20,7 @@ def service():
 
 @pytest.mark.anyio
 async def test_list_categories(service):
-    mock_categories = [Category(id=1, name="Category 1")]
+    mock_categories = [_category(id=1, name="Category 1")]
     service.repository.list.return_value = mock_categories
     result = await service.list_categories()
     assert result == mock_categories
@@ -24,7 +30,7 @@ async def test_list_categories(service):
 @pytest.mark.anyio
 async def test_get_category(service):
     category_id = 1
-    mock_category = Category(id=category_id, name="Category 1")
+    mock_category = _category(id=category_id, name="Category 1")
     service.repository.get.return_value = mock_category
     result = await service.get_category(category_id)
     assert result == mock_category
@@ -42,7 +48,7 @@ async def test_get_category_not_found(service):
 @pytest.mark.anyio
 async def test_create_category(service):
     create_data = CategoryCreate(name="New Category")
-    mock_category = Category(id=1, name="New Category")
+    mock_category = _category(id=1, name="New Category")
     service.repository.create.return_value = mock_category
     result = await service.create_category(create_data)
     assert result == mock_category
@@ -53,7 +59,7 @@ async def test_create_category(service):
 async def test_update_category(service):
     category_id = 1
     update_data = CategoryUpdate(name="Updated")
-    mock_category = Category(id=category_id, name="Updated")
+    mock_category = _category(id=category_id, name="Updated")
     service.repository.update.return_value = mock_category
     result = await service.update_category(category_id, update_data)
     assert result == mock_category

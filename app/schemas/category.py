@@ -1,4 +1,4 @@
-import random
+from datetime import datetime
 
 from pydantic import Field
 
@@ -10,9 +10,11 @@ class CategoryCreate(BaseModel):
 
 
 class CategoryUpdate(BaseModel):
-    name: str = Field(None, min_length=1, max_length=50)
+    name: str | None = Field(None, min_length=1, max_length=50)
 
 
 class Category(BaseModel):
-    id: int = Field(default_factory=lambda: random.randint(1, 9999))
+    id: int
     name: str = Field(..., min_length=1, max_length=50)
+    created_at: datetime
+    updated_at: datetime

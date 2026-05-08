@@ -1,34 +1,47 @@
-from app.schemas.category import Category, CategoryCreate, CategoryUpdate
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.category import Category
+from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
 class CategoryRepository:
-    def __init__(self) -> None:
-        self._categories: dict[int, Category] = {}
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
 
     async def list(self) -> list[Category]:
-        return list(self._categories.values())
+        result = await self._session.execute(select(Category))
+        return list(result.scalars().all())
 
     async def get(self, category_id: int) -> Category | None:
-        return self._categories.get(category_id)
+        result = await self._session.execute(
+            select(Category).where(Category.id == category_id)
+        )
+        return result.scalar_one_or_none()
 
     async def create(self, category_create: CategoryCreate) -> Category:
-        category = Category.model_validate(category_create.model_dump())
-        self._categories[category.id] = category
+        category = Category(name=category_create.name)
+        self._session.add(category)
+        await self._session.commit()
+        await self._session.refresh(category)
         return category
 
     async def update(
         self, category_id: int, category_update: CategoryUpdate
     ) -> Category | None:
-        existing = self._categories.get(category_id)
-        if not existing:
+        category = await self.get(category_id)
+        if not category:
             return None
-        update_data = category_update.model_dump(exclude_unset=True, exclude_none=True)
-        updated = existing.model_copy(update=update_data)
-        self._categories[category_id] = updated
-        return updated
+        if category_update.name is not None:
+            category.name = category_update.name
+        await self._session.commit()
+        await self._session.refresh(category)
+        return category
 
     async def delete(self, category_id: int) -> bool:
-        if category_id in self._categories:
-            del self._categories[category_id]
-            return True
-        return False
+        category = await self.get(category_id)
+        if not category:
+            return False
+        await self._session.delete(category)
+        await self._session.commit()
+        return True

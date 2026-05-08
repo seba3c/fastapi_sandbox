@@ -1,12 +1,6 @@
 import pytest
 
-from app.repositories.categories import CategoryRepository
 from app.schemas.category import CategoryCreate, CategoryUpdate
-
-
-@pytest.fixture
-async def repository():
-    return CategoryRepository()
 
 
 @pytest.mark.anyio
