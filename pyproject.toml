@@ -1,7 +1,7 @@
 [project]
-name = "fastapi-sandbox"
+name = "fa-ecom"
 version = "0.1.0"
-description = "FastAPI sandbox for experimentation"
+description = "FastAPI ecom API"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.115",
