@@ -74,6 +74,18 @@ async def test_create_category(service):
 
 
 @pytest.mark.anyio
+async def test_create_category_duplicate(service):
+    from app.core.exceptions import CategoryDuplicatedError
+
+    create_data = CategoryCreate(name="Duplicate")
+    service.repository.create.side_effect = CategoryDuplicatedError()
+
+    with pytest.raises(CategoryDuplicatedError) as exc_info:
+        await service.create_category(create_data)
+    assert exc_info.value.detail == "Category with this name already exists."
+
+
+@pytest.mark.anyio
 async def test_update_category(service):
     category_id = 1
     update_data = CategoryUpdate(name="Updated")

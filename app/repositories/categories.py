@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from fastapi_pagination.ext.sqlalchemy import apaginate
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import CategoryDuplicatedError
 from app.models.category import Category
 from app.schemas.category import (
     CategoryCreate,
@@ -36,7 +38,10 @@ class CategoryRepository:
     async def create(self, category_create: CategoryCreate) -> Category:
         category = Category(name=category_create.name)
         self._session.add(category)
-        await self._session.commit()
+        try:
+            await self._session.commit()
+        except IntegrityError as exc:
+            raise CategoryDuplicatedError() from exc
         await self._session.refresh(category)
         return category
 

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import IntegrityError
 
 from app.api.dependencies import get_category_repository
 from app.repositories.categories import CategoryRepository
@@ -18,13 +17,7 @@ async def create_category(
     repository: CategoryRepository = Depends(get_category_repository),
 ):
     service = CategoryService(repository)
-    try:
-        return await service.create_category(category_create)
-    except IntegrityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Category with this name already exists.",
-        ) from exc
+    return await service.create_category(category_create)
 
 
 @router.get("/public/categories", response_model=CategoryList)
