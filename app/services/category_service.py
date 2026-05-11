@@ -1,13 +1,14 @@
 from app.repositories.categories import CategoryRepository
 from app.schemas.category import Category, CategoryCreate, CategoryUpdate
+from app.schemas.common import PaginationParams
 
 
 class CategoryService:
     def __init__(self, repository: CategoryRepository) -> None:
         self.repository = repository
 
-    async def list_categories(self) -> list[Category]:
-        return await self.repository.list()
+    async def list_categories(self, params: PaginationParams):
+        return await self.repository.list_paginated(params)
 
     async def get_category(self, category_id: int) -> Category | None:
         return await self.repository.get(category_id)

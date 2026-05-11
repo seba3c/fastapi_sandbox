@@ -1,12 +1,29 @@
 import pytest
 
 from app.schemas.category import CategoryCreate, CategoryUpdate
+from app.schemas.common import PaginationParams
 
 
 @pytest.mark.anyio
 async def test_list_empty(repository):
     categories = await repository.list()
     assert categories == []
+
+
+@pytest.mark.anyio
+async def test_list_paginated(repository):
+    create1 = CategoryCreate(name="Category 1")
+    create2 = CategoryCreate(name="Category 2")
+    create3 = CategoryCreate(name="Category 3")
+    await repository.create(create1)
+    await repository.create(create2)
+    await repository.create(create3)
+
+    params = PaginationParams(limit=1, offset=1)
+    result = await repository.list_paginated(params)
+    assert result.total == 3
+    assert len(result.items) == 1
+    assert result.items[0].name == "Category 2"
 
 
 @pytest.mark.anyio

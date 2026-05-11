@@ -3,7 +3,8 @@ from sqlalchemy.exc import IntegrityError
 
 from app.api.dependencies import get_category_repository
 from app.repositories.categories import CategoryRepository
-from app.schemas.category import Category, CategoryCreate, CategoryUpdate
+from app.schemas.category import Category, CategoryCreate, CategoryList, CategoryUpdate
+from app.schemas.common import PaginationParams
 from app.services.category_service import CategoryService
 
 router = APIRouter(tags=["categories"])
@@ -26,12 +27,13 @@ async def create_category(
         ) from exc
 
 
-@router.get("/public/categories", response_model=list[Category])
+@router.get("/public/categories", response_model=CategoryList)
 async def list_categories(
+    params: PaginationParams = Depends(),
     repository: CategoryRepository = Depends(get_category_repository),
 ):
     service = CategoryService(repository)
-    return await service.list_categories()
+    return await service.list_categories(params)
 
 
 @router.get("/admin/categories/{category_id}", response_model=Category)

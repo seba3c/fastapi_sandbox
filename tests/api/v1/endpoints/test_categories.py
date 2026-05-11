@@ -40,7 +40,26 @@ async def test_list_categories(client, category_factory):
     response = await client.get(CATEGORIES_PUBLIC_URL)
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
+    assert len(data["items"]) == 2
+    assert data["total"] == 2
+    assert data["limit"] == 50
+    assert data["offset"] == 0
+
+
+@pytest.mark.anyio
+async def test_list_categories_pagination(client, category_factory):
+    await category_factory("Category 1")
+    await category_factory("Category 2")
+    await category_factory("Category 3")
+
+    response = await client.get(f"{CATEGORIES_PUBLIC_URL}?limit=1&offset=1")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["items"]) == 1
+    assert data["total"] == 3
+    assert data["limit"] == 1
+    assert data["offset"] == 1
+    assert data["items"][0]["name"] == "Category 2"
 
 
 @pytest.mark.anyio

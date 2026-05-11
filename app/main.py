@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
 from app.api.dependencies import get_settings
 from app.api.v1.router import api_router
@@ -39,3 +40,4 @@ app = FastAPI(title="FastAPI ecom", lifespan=lifespan)
 app.middleware("http")(add_process_time_header)
 app.middleware("http")(log_requests)
 app.include_router(api_router)
+add_pagination(app)

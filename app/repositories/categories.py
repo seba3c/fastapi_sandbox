@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from fastapi_pagination.ext.sqlalchemy import apaginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.category import Category
 from app.schemas.category import CategoryCreate, CategoryUpdate
+from app.schemas.common import PaginationParams
 
 
 class CategoryRepository:
@@ -14,6 +16,9 @@ class CategoryRepository:
     async def list(self) -> list[Category]:
         result = await self._session.execute(select(Category))
         return list(result.scalars().all())
+
+    async def list_paginated(self, params: PaginationParams):
+        return await apaginate(self._session, select(Category), params)
 
     async def get(self, category_id: int) -> Category | None:
         result = await self._session.execute(
