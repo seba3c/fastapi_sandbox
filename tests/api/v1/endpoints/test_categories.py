@@ -76,6 +76,7 @@ async def test_get_category(client, category_factory):
 async def test_get_category_not_found(client):
     response = await client.get(f"{CATEGORIES_ADMIN_URL}/1")
     assert response.status_code == 404
+    assert response.json()["detail"] == "Category not found"
 
 
 @pytest.mark.anyio
@@ -96,6 +97,7 @@ async def test_update_category_not_found(client):
         f"{CATEGORIES_ADMIN_URL}/99999", json={"name": "Updated"}
     )
     assert response.status_code == 404
+    assert response.json()["detail"] == "Category not found"
 
 
 @pytest.mark.anyio
@@ -113,3 +115,4 @@ async def test_delete_category(client, category_factory):
 async def test_delete_category_not_found(client):
     response = await client.delete(f"{CATEGORIES_ADMIN_URL}/1")
     assert response.status_code == 404
+    assert response.json()["detail"] == "Category not found"

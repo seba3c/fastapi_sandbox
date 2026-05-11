@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from app.api.dependencies import get_category_repository
 from app.repositories.categories import CategoryRepository
@@ -35,12 +35,7 @@ async def get_category(
     repository: CategoryRepository = Depends(get_category_repository),
 ):
     service = CategoryService(repository)
-    category = await service.get_category(category_id)
-    if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
-        )
-    return category
+    return await service.get_category(category_id)
 
 
 @router.put("/admin/categories/{category_id}", response_model=Category)
@@ -50,12 +45,7 @@ async def update_category(
     repository: CategoryRepository = Depends(get_category_repository),
 ):
     service = CategoryService(repository)
-    category = await service.update_category(category_id, category_update)
-    if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
-        )
-    return category
+    return await service.update_category(category_id, category_update)
 
 
 @router.delete(
@@ -66,9 +56,4 @@ async def delete_category(
     repository: CategoryRepository = Depends(get_category_repository),
 ):
     service = CategoryService(repository)
-    deleted = await service.delete_category(category_id)
-    if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
-        )
-    return None
+    await service.delete_category(category_id)

@@ -57,10 +57,13 @@ async def test_get_category(service):
 
 @pytest.mark.anyio
 async def test_get_category_not_found(service):
+    from app.core.exceptions import CategoryNotFoundError
+
     category_id = 1
     service.repository.get.return_value = None
-    result = await service.get_category(category_id)
-    assert result is None
+    with pytest.raises(CategoryNotFoundError) as exc_info:
+        await service.get_category(category_id)
+    assert exc_info.value.detail == "Category not found"
 
 
 @pytest.mark.anyio
@@ -97,9 +100,32 @@ async def test_update_category(service):
 
 
 @pytest.mark.anyio
+async def test_update_category_not_found(service):
+    from app.core.exceptions import CategoryNotFoundError
+
+    category_id = 1
+    update_data = CategoryUpdate(name="Updated")
+    service.repository.update.return_value = None
+    with pytest.raises(CategoryNotFoundError) as exc_info:
+        await service.update_category(category_id, update_data)
+    assert exc_info.value.detail == "Category not found"
+
+
+@pytest.mark.anyio
 async def test_delete_category(service):
     category_id = 1
     service.repository.delete.return_value = True
     result = await service.delete_category(category_id)
-    assert result is True
+    assert result is None
     service.repository.delete.assert_awaited_once_with(category_id)
+
+
+@pytest.mark.anyio
+async def test_delete_category_not_found(service):
+    from app.core.exceptions import CategoryNotFoundError
+
+    category_id = 1
+    service.repository.delete.return_value = False
+    with pytest.raises(CategoryNotFoundError) as exc_info:
+        await service.delete_category(category_id)
+    assert exc_info.value.detail == "Category not found"

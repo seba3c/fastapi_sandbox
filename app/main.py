@@ -1,13 +1,13 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi_pagination import add_pagination
 
 from app.api.dependencies import get_settings
 from app.api.v1.router import api_router
-from app.core.exceptions import EntityDuplicatedError
+from app.core.exceptions import AppException
 from app.core.logging import configure_logging
 from app.core.middleware import add_process_time_header, log_requests
 from app.db.session import create_async_engine_instance, create_async_session_maker
@@ -45,9 +45,9 @@ app.include_router(api_router)
 add_pagination(app)
 
 
-@app.exception_handler(EntityDuplicatedError)
-async def entity_duplicated_handler(request: Request, exc: EntityDuplicatedError):
+@app.exception_handler(AppException)
+async def app_exception_handler(request: Request, exc: AppException):
     return JSONResponse(
-        status_code=status.HTTP_409_CONFLICT,
+        status_code=exc.status_code,
         content={"detail": exc.detail},
     )

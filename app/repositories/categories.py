@@ -52,7 +52,7 @@ class CategoryRepository:
 
     async def update(
         self, category_id: int, category_update: CategoryUpdate
-    ) -> Category | None:
+    ) -> CategoryOrNone:
         category = await self.get(category_id)
         if not category:
             return None
