@@ -20,7 +20,7 @@ async def test_list_paginated(repository):
     await repository.create(create3)
 
     params = PaginationParams(limit=1, offset=1)
-    result = await repository.list_paginated(params)
+    result = await repository.paginated_list(params)
     assert result.total == 3
     assert len(result.items) == 1
     assert result.items[0].name == "Category 2"

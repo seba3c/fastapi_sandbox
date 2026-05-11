@@ -8,7 +8,7 @@ class CategoryService:
         self.repository = repository
 
     async def list_categories(self, params: PaginationParams):
-        return await self.repository.list_paginated(params)
+        return await self.repository.paginated_list(params)
 
     async def get_category(self, category_id: int) -> Category | None:
         return await self.repository.get(category_id)

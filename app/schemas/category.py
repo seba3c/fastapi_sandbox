@@ -23,3 +23,8 @@ class Category(BaseModel):
 
 class CategoryList(PaginatedResponse[Category]):
     pass
+
+
+CategoryBulkCreate = list[CategoryCreate]
+
+CategoryOrNone = Category | None

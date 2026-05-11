@@ -24,11 +24,11 @@ async def test_list_categories(service):
     mock_result = AsyncMock()
     mock_result.items = [_category(id=1, name="Category 1")]
     mock_result.total = 1
-    service.repository.list_paginated.return_value = mock_result
+    service.repository.paginated_list.return_value = mock_result
     params = PaginationParams(limit=50, offset=0)
     result = await service.list_categories(params)
     assert result == mock_result
-    service.repository.list_paginated.assert_awaited_once_with(params)
+    service.repository.paginated_list.assert_awaited_once_with(params)
 
 
 @pytest.mark.anyio

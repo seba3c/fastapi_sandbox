@@ -5,7 +5,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.category import Category
-from app.schemas.category import CategoryCreate, CategoryUpdate
+from app.schemas.category import (
+    CategoryCreate,
+    CategoryUpdate,
+    CategoryBulkCreate,
+    CategoryOrNone,
+)
 from app.schemas.common import PaginationParams
 
 
@@ -17,10 +22,10 @@ class CategoryRepository:
         result = await self._session.execute(select(Category))
         return list(result.scalars().all())
 
-    async def list_paginated(self, params: PaginationParams):
+    async def paginated_list(self, params: PaginationParams):
         return await apaginate(self._session, select(Category), params)
 
-    async def get(self, category_id: int) -> Category | None:
+    async def get(self, category_id: int) -> CategoryOrNone:
         result = await self._session.execute(
             select(Category).where(Category.id == category_id)
         )
@@ -33,11 +38,10 @@ class CategoryRepository:
         await self._session.refresh(category)
         return category
 
-    async def bulk_create(self, creates: list[CategoryCreate]) -> list[Category]:
+    async def bulk_create(self, creates: CategoryBulkCreate) -> None:
         categories = [Category(name=c.name) for c in creates]
         self._session.add_all(categories)
         await self._session.commit()
-        return categories
 
     async def update(
         self, category_id: int, category_update: CategoryUpdate
