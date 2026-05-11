@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 
 from app.api.dependencies import get_category_repository
 from app.repositories.categories import CategoryRepository
 from app.schemas.category import Category, CategoryCreate, CategoryList, CategoryUpdate
 from app.schemas.common import PaginationParams
+from app.schemas.tasks import CategoryCreatedPayload
 from app.services.category_service import CategoryService
+from app.tasks.category_tasks import notify_category_created
 
 router = APIRouter(tags=["categories"])
 
@@ -14,10 +16,16 @@ router = APIRouter(tags=["categories"])
 )
 async def create_category(
     category_create: CategoryCreate,
+    background_tasks: BackgroundTasks,
     repository: CategoryRepository = Depends(get_category_repository),
 ):
     service = CategoryService(repository)
-    return await service.create_category(category_create)
+    category = await service.create_category(category_create)
+    background_tasks.add_task(
+        notify_category_created,
+        CategoryCreatedPayload(id=category.id, name=category.name),
+    )
+    return category
 
 
 @router.get("/public/categories", response_model=CategoryList)

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 CATEGORIES_PUBLIC_URL = "/api/public/categories"
@@ -11,6 +13,19 @@ async def test_create_category(client):
     data = response.json()
     assert data["name"] == "Test Category"
     assert "id" in data
+
+
+@pytest.mark.anyio
+async def test_create_category_triggers_background_task(client):
+    with patch("app.api.v1.endpoints.categories.notify_category_created") as mock_task:
+        response = await client.post(
+            CATEGORIES_ADMIN_URL, json={"name": "Background Task Category"}
+        )
+        assert response.status_code == 201
+        mock_task.assert_called_once()
+        payload = mock_task.call_args[0][0]
+        assert payload.name == "Background Task Category"
+        assert payload.id == response.json()["id"]
 
 
 @pytest.mark.anyio
