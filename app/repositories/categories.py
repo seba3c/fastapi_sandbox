@@ -22,7 +22,9 @@ class CategoryRepository:
         result = await self._session.execute(select(Category))
         return list(result.scalars().all())
 
-    async def paginated_list(self, params: PaginationParams):
+    async def paginated_list(self, params: PaginationParams | None = None):
+        if params is None:
+            params = PaginationParams()
         return await apaginate(self._session, select(Category), params)
 
     async def get(self, category_id: int) -> CategoryOrNone:

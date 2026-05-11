@@ -32,6 +32,20 @@ async def test_list_categories(service):
 
 
 @pytest.mark.anyio
+async def test_list_categories_with_default_params(service):
+    mock_result = AsyncMock()
+    mock_result.items = [_category(id=1, name="Category 1")]
+    mock_result.total = 1
+    service.repository.paginated_list.return_value = mock_result
+    result = await service.list_categories()
+    assert result == mock_result
+    service.repository.paginated_list.assert_awaited_once()
+    call_args = service.repository.paginated_list.call_args[0][0]
+    assert call_args.limit == 50
+    assert call_args.offset == 0
+
+
+@pytest.mark.anyio
 async def test_get_category(service):
     category_id = 1
     mock_category = _category(id=category_id, name="Category 1")

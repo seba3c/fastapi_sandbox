@@ -27,6 +27,20 @@ async def test_list_paginated(repository):
 
 
 @pytest.mark.anyio
+async def test_list_paginated_with_default_params(repository):
+    create1 = CategoryCreate(name="Category 1")
+    create2 = CategoryCreate(name="Category 2")
+    await repository.create(create1)
+    await repository.create(create2)
+
+    result = await repository.paginated_list()
+    assert result.total == 2
+    assert len(result.items) == 2
+    assert result.limit == 50
+    assert result.offset == 0
+
+
+@pytest.mark.anyio
 async def test_create_category(repository):
     create = CategoryCreate(name="Test Category")
     category = await repository.create(create)

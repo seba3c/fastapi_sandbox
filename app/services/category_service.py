@@ -7,7 +7,9 @@ class CategoryService:
     def __init__(self, repository: CategoryRepository) -> None:
         self.repository = repository
 
-    async def list_categories(self, params: PaginationParams):
+    async def list_categories(self, params: PaginationParams | None = None):
+        if params is None:
+            params = PaginationParams()
         return await self.repository.paginated_list(params)
 
     async def get_category(self, category_id: int) -> Category | None:
