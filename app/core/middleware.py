@@ -1,7 +1,7 @@
 import logging
 import time
 
-from fastapi import Request
+from fastapi import FastAPI, Request
 
 logger = logging.getLogger(__name__)
 
@@ -18,3 +18,8 @@ async def log_requests(request: Request, call_next):
     client_host = request.client.host if request.client else "unknown"
     logger.info("[%s] %s from %s", request.method, request.url.path, client_host)
     return await call_next(request)
+
+
+def register_middleware(app: FastAPI) -> None:
+    app.middleware("http")(add_process_time_header)
+    app.middleware("http")(log_requests)

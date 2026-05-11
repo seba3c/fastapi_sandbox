@@ -1,15 +1,14 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
 from app.api.dependencies import get_settings
-from app.api.v1.router import api_router
-from app.core.exceptions import AppException
+from app.api.v1.router import register_routers
+from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
-from app.core.middleware import add_process_time_header, log_requests
+from app.core.middleware import register_middleware
 from app.db.session import create_async_engine_instance, create_async_session_maker
 
 
@@ -38,16 +37,13 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(title="FastAPI ecom", lifespan=lifespan)
-app.middleware("http")(add_process_time_header)
-app.middleware("http")(log_requests)
-app.include_router(api_router)
-add_pagination(app)
+def create_app() -> FastAPI:
+    app = FastAPI(title="FastAPI ecom", lifespan=lifespan)
+    register_middleware(app)
+    register_routers(app)
+    add_pagination(app)
+    register_exception_handlers(app)
+    return app
 
 
-@app.exception_handler(AppException)
-async def app_exception_handler(request: Request, exc: AppException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-    )
+app = create_app()
