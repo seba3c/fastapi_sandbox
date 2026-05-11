@@ -1,3 +1,4 @@
+from asgi_correlation_id import correlation_id
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
@@ -29,11 +30,18 @@ class CategoryDuplicatedError(EntityDuplicatedError):
 
 
 async def app_exception_handler(request: Request, exc: AppException):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
+        status_code=500,
+        content={"detail": "Internal server error"},
+        headers={"X-Request-ID": correlation_id.get() or ""},
     )
 
 
 def register_exception_handlers(app: FastAPI) -> None:
+    # Registering custom exception handlers from most specific to least specific
     app.add_exception_handler(AppException, app_exception_handler)
+    app.add_exception_handler(Exception, unhandled_exception_handler)

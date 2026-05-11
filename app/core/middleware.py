@@ -1,6 +1,7 @@
 import logging
 import time
 
+from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI, Request
 
 logger = logging.getLogger(__name__)
@@ -23,3 +24,4 @@ async def log_requests(request: Request, call_next):
 def register_middleware(app: FastAPI) -> None:
     app.middleware("http")(add_process_time_header)
     app.middleware("http")(log_requests)
+    app.add_middleware(CorrelationIdMiddleware)

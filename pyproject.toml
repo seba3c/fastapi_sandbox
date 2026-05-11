@@ -13,6 +13,7 @@ dependencies = [
     "pymysql>=1.1",
     "cryptography>=42",
     "fastapi-pagination>=0.15.12",
+    "asgi-correlation-id>=4.3.4",
 ]
 
 [dependency-groups]

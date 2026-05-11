@@ -12,13 +12,24 @@ def configure_logging(settings: Settings) -> None:
     config: dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": False,
+        "filters": {
+            "correlation_id": {
+                "()": "asgi_correlation_id.CorrelationIdFilter",
+                "uuid_length": 32,
+                "default_value": "-",
+            },
+        },
         "formatters": {
             "default": {
-                "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+                "format": "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
             "access": {
-                "format": "%(asctime)s | %(levelname)-8s | %(client_addr)s - %(request_line)s | %(status_code)s",
+                "format": "%(asctime)s | %(levelname)s | %(client_addr)s - %(request_line)s | %(status_code)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+            "web": {
+                "format": "%(asctime)s | %(levelname)s | %(correlation_id)s | %(name)s | %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
         },
@@ -29,11 +40,17 @@ def configure_logging(settings: Settings) -> None:
                 "formatter": "default",
                 "stream": "ext://sys.stdout",
             },
+            "web": {
+                "class": "logging.StreamHandler",
+                "filters": ["correlation_id"],
+                "formatter": "web",
+            },
         },
         "loggers": {
-            "": {
-                "handlers": ["stdout"],
+            "app": {
+                "handlers": ["web"],
                 "level": log_level,
+                "propagate": False,
             },
             "uvicorn": {
                 "handlers": ["stdout"],
