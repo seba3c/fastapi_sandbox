@@ -1,3 +1,4 @@
+from collections.abc import AsyncIterable
 from datetime import datetime
 
 from pydantic import Field
@@ -28,3 +29,5 @@ class CategoryList(PaginatedResponse[Category]):
 CategoryBulkCreate = list[CategoryCreate]
 
 CategoryOrNone = Category | None
+
+CategoryStream = AsyncIterable[Category]
