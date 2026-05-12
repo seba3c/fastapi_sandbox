@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 import pytest
@@ -75,6 +76,23 @@ async def test_list_categories_pagination(client, category_factory):
     assert data["limit"] == 1
     assert data["offset"] == 1
     assert data["items"][0]["name"] == "Category 2"
+
+
+@pytest.mark.anyio
+async def test_stream_categories(client, category_factory):
+    category1 = await category_factory("Stream Category 1")
+    category2 = await category_factory("Stream Category 2")
+
+    response = await client.get(f"{CATEGORIES_PUBLIC_URL}/stream")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/jsonl")
+
+    lines = response.text.strip().split("\n")
+    assert len(lines) >= 2
+
+    names = {json.loads(line)["name"] for line in lines}
+    assert category1.name in names
+    assert category2.name in names
 
 
 @pytest.mark.anyio
